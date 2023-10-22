@@ -183,7 +183,7 @@
 !  CLOSE UNIT IFILES(5) IN CASE IT WAS ALREADY PRE-ASSIGNED.
 !INPUT FILE MISSING
       close(input)
-      open(unit=input, status='SCRATCH', iostat = io_stat)
+      open(unit=input, file='input.txt', status='UNKNOWN', iostat = io_stat)
       if (io_stat /= 0) then
         if (io_stat == 30) then
           call to_screen(" The file'"//input_fn(:len_trim(input_fn))//"' is busy")

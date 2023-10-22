@@ -425,7 +425,7 @@
     if (opend) then
       close (unit=ilog, status="DELETE")
     end if
-    open (unit=ilog, status="SCRATCH", form="FORMATTED")
+    open (unit=ilog, file='ilog.txt', status="UNKNOWN", form="FORMATTED")
 !
 !  Do NOT generate normal MOPAC output, unless "LARGE" is present.
 !
@@ -440,7 +440,7 @@
       open (unit=iw, file=jobnam(:len_trim(jobnam))//".arc", status="UNKNOWN")
       rewind (iw)
     else
-      open (unit=iw, status="SCRATCH", form="FORMATTED")
+      open (unit=iw, file='iw.txt', status="UNKNOWN", form="FORMATTED")
     end if
   !***********************************************************************
   !
@@ -487,7 +487,7 @@
 !   Delete scatch files to save storage space
 !
         close (iw, iostat=i)
-        open (unit=iw, status="SCRATCH", form="FORMATTED", iostat=i)
+        open (unit=iw, file='iw.txt', status="UNKNOWN", form="FORMATTED", iostat=i)
       end if
       call rapid0 (loop)
       call pparsav(save_parameters)

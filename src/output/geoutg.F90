@@ -109,7 +109,7 @@
           igeo(idepfn(i),locdep(i)) = locpar(i)
         end if
       end do
-      open(unit=iscr, status='SCRATCH', position='asis')
+      open(unit=iscr, file='iscr.txt', status='UNKNOWN', position='asis')
       nopt = 0
       do i = 1, natoms
         do j = 1, 3

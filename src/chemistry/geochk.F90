@@ -1481,7 +1481,7 @@ subroutine geochk ()
                     do m = 10, 100
                       inquire(unit=m, opened = opend)
                       if (.not. opend) then
-                      open(unit=m, status='SCRATCH')
+                      open(unit=m, file='m.txt', status='UNKNOWN')
                       exit
                       end if
                     end do

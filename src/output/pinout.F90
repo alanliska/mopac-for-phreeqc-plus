@@ -76,7 +76,7 @@ subroutine pinout (mode, l_use_disk)
     if (l_use_disk) then
       open (unit=iden, file=density_fn, status="UNKNOWN", form="UNFORMATTED")
     else
-      open (unit=iden, status="SCRATCH", form="UNFORMATTED")
+      open (unit=iden, file='iden.txt', status="UNKNOWN", form="UNFORMATTED")
     end if
     rewind (iden)
     if (mode == 1) then

@@ -100,7 +100,7 @@ subroutine partab
         if (opend) then
           close (unit=ilog, status="DELETE")
         end if
-        open (unit=ilog, status="SCRATCH", form="FORMATTED")
+        open (unit=ilog, file='ilog.txt', status="UNKNOWN", form="FORMATTED")
       end if
     nhmols = 0
     ndmols = 0

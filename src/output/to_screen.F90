@@ -1556,7 +1556,7 @@ subroutine fill_overlap_matrix(overlap)
     if (.not. allocated(bondab))  then
       i = iw
       iw = 88
-      open(unit=iw, status='SCRATCH')
+      open(unit=iw, file='iw.txt', status='UNKNOWN')
       call bonds ()
       close(iw)
       iw = i
