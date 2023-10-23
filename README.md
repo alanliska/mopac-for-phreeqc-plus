@@ -17,6 +17,31 @@ status changed to UNKNOWN
 * readmo.f
 added the stamp defining the release
 
+# Compilation #
+
+mkdir build
+cd build
+
+* arm
+cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_arm -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+in all link.txt remove '-static'
+make install
+
+* aarch64
+cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/installmopac2023_linux_aarch64 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+in all link.txt remove '-static'
+make install
+
+* x86
+cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/installmopac2023_linux_x86 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+in all link.txt remove '-static'
+make install
+
+* x86_64
+cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_x86_64 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+in all link.txt remove '-static'
+make install
+
 ####
 
 This is fork of the official repository of the modern open-source version of MOPAC, which is now released under an LGPL license, used for Android users.
