@@ -1,3 +1,55 @@
+# This is the MOPAC fork used in the mobile app PHREEQC plus
+
+## Changes in this fork
+
+* all source files containing status SCRATCH - status changed to UNKNOWN (fortran temporary directories are not accessible in Android)
+
+* readmo.f - added the stamp defining the release
+
+## Compilation
+
+mkdir build
+cd build
+
+* arm
+```bash
+$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_arm -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+```
+in all link.txt remove '-static'
+```bash
+$ make install
+```
+
+* aarch64
+```bash
+$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/installmopac2023_linux_aarch64 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+```
+in all link.txt remove '-static'
+```bash
+$ make install
+```
+
+* x86
+```bash
+$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/installmopac2023_linux_x86 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+```
+in all link.txt remove '-static'
+```bash
+$ make install
+```
+
+* x86_64
+```bash
+$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_x86_64 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+```
+in all link.txt remove '-static'
+```bash
+$ make install
+```
+
+
+
+
 # Molecular Orbital PACkage (MOPAC)
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
@@ -5,44 +57,6 @@
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/mopac/badges/version.svg)](https://anaconda.org/conda-forge/mopac)
 ![build](https://github.com/openmopac/mopac/actions/workflows/CI.yaml/badge.svg)
 [![codecov](https://codecov.io/gh/openmopac/mopac/branch/main/graph/badge.svg?token=qM2KeRvw06)](https://codecov.io/gh/openmopac/mopac)
-
-#### This is the MOPAC fork used in the mobile app PHREEQC plus ####
-
-# Changes in this fork #
-
-* all source files containing status SCRATCH 
-status changed to UNKNOWN
-(fortran temporary directories are not accessible in Android)
-
-* readmo.f
-added the stamp defining the release
-
-# Compilation #
-
-mkdir build
-cd build
-
-* arm
-cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_arm -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
-in all link.txt remove '-static'
-make install
-
-* aarch64
-cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/installmopac2023_linux_aarch64 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
-in all link.txt remove '-static'
-make install
-
-* x86
-cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/installmopac2023_linux_x86 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
-in all link.txt remove '-static'
-make install
-
-* x86_64
-cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_x86_64 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
-in all link.txt remove '-static'
-make install
-
-####
 
 This is fork of the official repository of the modern open-source version of MOPAC, which is now released under an LGPL license, used for Android users.
 OpenMOPAC is a direct continuation of the commercial development and distribution of MOPAC, which ended at MOPAC 2016.
