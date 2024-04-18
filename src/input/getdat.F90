@@ -33,7 +33,7 @@
 !-----------------------------------------------
       integer, parameter :: from_data_set = 7
       integer :: i, j, io_stat, l, nlines
-      logical :: exists, arc_file, comments = .true.
+      logical :: exists, arc_file, comments = .true., double_plus
       character :: line1*3000, num1*1, num2*1
       character, allocatable :: tmp_comments(:)*120
       double precision, external :: reada
@@ -183,7 +183,7 @@
 !  CLOSE UNIT IFILES(5) IN CASE IT WAS ALREADY PRE-ASSIGNED.
 !INPUT FILE MISSING
       close(input)
-      open(unit=input, file='input.txt', status='UNKNOWN', iostat = io_stat)
+      open(unit=input, file='fort.input',status='unknown',iostat = io_stat)
       if (io_stat /= 0) then
         if (io_stat == 30) then
           call to_screen(" The file'"//input_fn(:len_trim(input_fn))//"' is busy")
@@ -295,6 +295,7 @@
       if (i /= 0) keywrd(i:i+6) = "GEO_DAT"
       i = index(keywrd, "GEO-REF")
       if (i /= 0) keywrd(i:i+6) = "GEO_REF"
+      double_plus = (index(keywrd, " ++ ") /= 0)
       if (index(keywrd, " GEO_DAT") + index(keywrd, " SETUP")/= 0) then
         nlines = nlines + 3
       else if (.not. is_PARAM .and. nlines < 4) then
@@ -382,7 +383,7 @@
       line = ' '
       write (input, '(A241)') line
       rewind input
-1000  if (nlines < 3 .and. .not. is_PARAM) then
+1000  if (nlines < 3 .and. .not. is_PARAM .and. line1 == " " .and. .not. double_plus) then
         inquire(unit=output, opened=exists)
         if (.not. exists) open(unit=output, file=trim(jobnam)//'.out')
 #ifdef MOPAC_F2003

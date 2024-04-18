@@ -227,13 +227,13 @@
       allocate(ci(nconf, nconf))
       if(allocated(evalci))  deallocate(evalci)
       allocate(evalci(nconf))
-      open        (ic, file='ic.txt', status ='unknown', form ='unformatted')
+      open (ic, file='fort.ic',status ='unknown', form ='unformatted')
       write (ic)  ((cc0(i, j), j = 1, n), i = 1, n), (beta(i), i = 1, nb2)
       rewind ic
       call foscil (dmci, dm, iconf, e, aocc, bocc, spintr, nspn, xz, zcore)
       nc2 = nconf*(nconf+1)/2
 
-      open        (id, file='id.txt', status ='unknown', form ='unformatted')
+      open (id, file='fort.id',status ='unknown', form ='unformatted')
 
       write (id)  ((dmci(i, j), i = 1, nc2), j = 1, 3)
       rewind id

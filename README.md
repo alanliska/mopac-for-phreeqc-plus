@@ -13,42 +13,73 @@ cd build
 
 * arm
 ```bash
-$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_arm -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+$ export CC=arm-linux-gnueabi-gcc
+$ export CXX=arm-linux-gnueabi-g++
+$ export FC=arm-linux-gnueabi-gfortran
+$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/libs
+$ export CFLAGS="-static -pie -fPIC"
+$ export CXXFLAGS="-static -pie -fPIC"
+$ export FFLAGS="-static -pie -fPIC"
+$ export LDFLAGS="-static -pie -fPIC"
+$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_arm -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static -fPIE -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
 ```
-in all link.txt remove '-static'
+in cmake_install.cmake, remove blocks including RPATH
 ```bash
 $ make install
 ```
 
 * aarch64
 ```bash
-$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/installmopac2023_linux_aarch64 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+$ export CC=aarch64-linux-gnu-gcc
+$ export CXX=aarch64-linux-gnu-g++
+$ export FC=aarch64-linux-gnu-gfortran
+$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/libs
+$ export CFLAGS="-static -pie -fPIC"
+$ export CXXFLAGS="-static -pie -fPIC"
+$ export FFLAGS="-static -pie -fPIC"
+$ export LDFLAGS="-static -pie -fPIC"
+$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_aarch64 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static -fPIE -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
 ```
-in all link.txt remove '-static'
+in cmake_install.cmake, remove blocks including RPATH
 ```bash
 $ make install
 ```
 
 * x86
 ```bash
-$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/installmopac2023_linux_x86 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+$ export CC=i686-linux-gnu-gcc
+$ export CXX=i686-linux-gnu-g++
+$ export FC=i686-linux-gnu-gfortran
+$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/libs
+$ export CFLAGS="-static -pie -fPIC"
+$ export CXXFLAGS="-static -pie -fPIC"
+$ export FFLAGS="-static -pie -fPIC"
+$ export LDFLAGS="-static -pie -fPIC"
+$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_x86 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static -fPIE -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
 ```
-in all link.txt remove '-static'
+in cmake_install.cmake, remove blocks including RPATH
 ```bash
 $ make install
 ```
 
 * x86_64
 ```bash
-$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_x86_64 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static-libgfortran -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+$ export CC=x86_64-linux-gnu-gcc
+$ export CXX=x86_64-linux-gnu-g++
+$ export FC=x86_64-linux-gnu-gfortran
+$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/libs
+$ export CFLAGS="-static -pie -fPIC"
+$ export CXXFLAGS="-static -pie -fPIC"
+$ export FFLAGS="-static -pie -fPIC"
+$ export LDFLAGS="-static -pie -fPIC"
+$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_x86_64 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static -fPIE -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
 ```
-in all link.txt remove '-static'
+in cmake_install.cmake, remove blocks including RPATH
 ```bash
 $ make install
 ```
 
-
-
+# ORIGINAL DESCRIPTION:
 
 # Molecular Orbital PACkage (MOPAC)
 
@@ -58,8 +89,8 @@ $ make install
 ![build](https://github.com/openmopac/mopac/actions/workflows/CI.yaml/badge.svg)
 [![codecov](https://codecov.io/gh/openmopac/mopac/branch/main/graph/badge.svg?token=qM2KeRvw06)](https://codecov.io/gh/openmopac/mopac)
 
-This is fork of the official repository of the modern open-source version of MOPAC, which is now released under an LGPL license, used for Android users.
-OpenMOPAC is a direct continuation of the commercial development and distribution of MOPAC, which ended at MOPAC 2016.
+This is the official repository of the modern open-source version of MOPAC, which is now released under an LGPL license.
+This is a direct continuation of the commercial development and distribution of MOPAC, which ended at MOPAC 2016.
 Commercial versions of MOPAC are no longer supported, and all MOPAC users are encouraged to switch to the most recent open-source version.
 
 [![mopac_at_molssi](.github/mopac_at_molssi.png)](https://molssi.org)

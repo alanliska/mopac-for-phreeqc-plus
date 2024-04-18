@@ -235,6 +235,9 @@ module molkst_C
   &  press(3),     & ! Type         Pressure on crystal faces
                      ! Definition   Pressure required to stop crystal expanding
                      ! Units        Gigapascals
+  &  voigt(6),     & ! Type         Stress tensor in Voigt notation (xx, yy, zz, yz, xz, xy)
+                     ! Definition   Stress tensor is a symmetric 3-by-3 matrix represented by 6 distinct values
+                     ! Units        Gigapascals
   &  E_disp,       & ! Dispersion term
   &  E_hb,         & ! Hydrogen-bond term
   &  E_hh,         & ! Hydrogen-hydrogen repulsion term (to correct for short H - H interactions)

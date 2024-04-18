@@ -294,8 +294,8 @@ subroutine getdat
       write(*,"(a)")" "
       write(*,"(a)")" http://www.OpenMOPAC.net/Manual/makpol.html"
       write(*,"(a)")"  "
-     
-      call sleep (100)
+      write(0,'(10x,a)')" Press (return) to continue"
+      read(5,*, iostat=i)
       stop
     end if
     if (i > 1) then
@@ -452,7 +452,7 @@ subroutine getdat
       write (iw, "(A)") " INPUT FILE MISSING OR EMPTY"
     else
       close (5)
-      open (5, file='scratch5.txt', status="UNKNOWN", form="UNFORMATTED")
+      open (5, file='fort.5',status="unknown", form="UNFORMATTED")
     end if
     open (unit=iw, file=trim(path)//trim(line)//".mop", status="UNKNOWN", iostat = i)
     rewind (ir)

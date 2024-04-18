@@ -338,6 +338,13 @@
           lopt(3,3) = 0
         end if
         if (index(keywrd, " XYZ") /= 0) then
+          k = 0
+          do i = 1, natoms
+            do j = 1, 3
+              k = k + lopt(j,i)
+            end do
+          end do
+          j = na(3)
           numat = 0
           do i = 1, natoms
             if (labels(i) /= 99) then
@@ -353,7 +360,7 @@
 !   If everything is marked for optimization then unconditionally mark the first
 !   three atoms for optimization
 !
-          if (k >= 3*numat - 6) lopt(:,:min(3, numat)) = 1
+          if (k >= 3*numat - 6 .and. j /= 0) lopt(:,:min(3, numat)) = 1
           natoms = numat
         end if
 
@@ -693,10 +700,10 @@
       write (iw, '(1X,a)')"**          Digital Object Identifier (DOI): 10.5281/zenodo.6511958          **"
       write (iw, '(1X,a)')"**    Visit the DOI location for information on how to cite this program.    **"
       write (iw, '(1X,a)')"*******************************************************************************"
-      write (iw, '(1X,a)')"** Special version for Android (aarch64, pie)                                **"
-      write (iw, '(1X,a)')"** linked with high-performance BLAS and LAPACK libraries                    **"
-      write (iw, '(1X,a)')"** compiled by Alan Liska & Veronika Ruzickova on August 25, 2023            **"
-      write (iw, '(1X,a)')"**                                                                           **"
+      write (iw, '(1X,a)')"** Special version for Linux (Debian, x86_64, pie, static)                   **"
+      write (iw, '(1X,a)')"** linked with high-performance BLAS and LAPACK libraries (for Android)      **"
+      write (iw, '(1X,a)')"** compiled by Alan Liska & Veronika Ruzickova on April 13, 2024             **"
+      write (iw, '(1X,a)')"*******************************************************************************"
       j = len_trim(keywrd)
       do i = j, 1, -1
         ch = keywrd(i:i)

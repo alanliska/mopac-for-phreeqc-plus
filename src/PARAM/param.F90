@@ -422,7 +422,7 @@
     if (opend) then
       close (unit=ilog, status="DELETE")
     end if
-    open (unit=ilog, file='ilog.txt', status="UNKNOWN", form="FORMATTED")
+    open (unit=ilog, file='fort.ilog',status="unknown", form="FORMATTED")
 !
 !  Do NOT generate normal MOPAC output, unless "LARGE" is present.
 !

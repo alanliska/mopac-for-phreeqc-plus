@@ -402,7 +402,7 @@
       open (unit=iw,  file="fort.26", iostat = i)
       if (i == 0) close(iw, status='DELETE')
     end if
-    open (unit=iw, file='iw.txt', status="UNKNOWN")
+    open (unit=iw, file='fort.iw',status="unknown")
     lnmols = 0
     moperr = .false.
     do nmols = 1, nmolmx
@@ -443,7 +443,7 @@
             if (l == 0) exit
           end do
           inquire (unit=ir, opened=opend)
-          if ( .not. opend)  open(ir,file='ir.txt',status='unknown',blank='zero')
+          if ( .not. opend)  open(ir,file='fort.ir',status='unknown',blank='zero')
           rewind (ir)
           do
             read (igpt, "(A360)", end=1300, err=1300) line

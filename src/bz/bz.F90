@@ -237,7 +237,7 @@ program BZ
 !
 !  Copy everything from the input file, and put it in a scratch file
 !
-     open(unit=99, file='scratch99.txt', status='UNKNOWN', iostat = io_stat) 
+     open(unit=99, file='fort.99',status='unknown', iostat = io_stat) 
      do
        do
          read(ir,'(a)', iostat = io_stat)line
