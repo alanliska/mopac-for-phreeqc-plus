@@ -109,7 +109,7 @@
           igeo(idepfn(i),locdep(i)) = locpar(i)
         end if
       end do
-      open(unit=iscr, file='fort.iscr',status='unknown', position='asis')
+      open(unit=iscr, file='fort.iscr', status='UNKNOWN', position='asis')
       nopt = 0
       do i = 1, natoms
         do j = 1, 3

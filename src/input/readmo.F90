@@ -700,10 +700,11 @@
       write (iw, '(1X,a)')"**          Digital Object Identifier (DOI): 10.5281/zenodo.6511958          **"
       write (iw, '(1X,a)')"**    Visit the DOI location for information on how to cite this program.    **"
       write (iw, '(1X,a)')"*******************************************************************************"
-      write (iw, '(1X,a)')"** Special version for Linux (Debian, x86_64, pie, static)                   **"
-      write (iw, '(1X,a)')"** linked with high-performance BLAS and LAPACK libraries (for Android)      **"
-      write (iw, '(1X,a)')"** compiled by Alan Liska & Veronika Ruzickova on April 13, 2024             **"
+      write (iw, '(1X,a)')"** Special version for Android (x86_64, pie)                                 **"
+      write (iw, '(1X,a)')"** linked with high-performance BLAS and LAPACK libraries                    **"
+      write (iw, '(1X,a)')"** compiled by Alan Liska & Veronika Ruzickova on June 19, 2024              **"
       write (iw, '(1X,a)')"*******************************************************************************"
+
       j = len_trim(keywrd)
       do i = j, 1, -1
         ch = keywrd(i:i)

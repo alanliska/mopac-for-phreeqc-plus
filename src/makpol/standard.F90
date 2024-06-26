@@ -452,7 +452,7 @@ subroutine getdat
       write (iw, "(A)") " INPUT FILE MISSING OR EMPTY"
     else
       close (5)
-      open (5, file='fort.5',status="unknown", form="UNFORMATTED")
+      open (5, file='fort.5', status="UNKNOWN", form="UNFORMATTED")
     end if
     open (unit=iw, file=trim(path)//trim(line)//".mop", status="UNKNOWN", iostat = i)
     rewind (ir)

@@ -402,7 +402,7 @@
       open (unit=iw,  file="fort.26", iostat = i)
       if (i == 0) close(iw, status='DELETE')
     end if
-    open (unit=iw, file='fort.iw',status="unknown")
+    open (unit=iw, file='fort.iw', status="UNKNOWN")
     lnmols = 0
     moperr = .false.
     do nmols = 1, nmolmx

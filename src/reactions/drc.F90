@@ -88,7 +88,7 @@
       errfn = 0.d0
       inquire(unit=iscr, opened=opend)
       if (opend) close(unit=iscr)
-      open(unit=iscr, file='fort.iscr',status='unknown', position='asis')
+      open(unit=iscr, file='fort.iscr', status='UNKNOWN', position='asis')
       if (index(keywrd,' PREC') /= 0) then
         accu = 0.25d0
         cnvg = 0.000001d0

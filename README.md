@@ -11,68 +11,16 @@
 mkdir build
 cd build
 
-* arm
 ```bash
-$ export CC=arm-linux-gnueabi-gcc
-$ export CXX=arm-linux-gnueabi-g++
-$ export FC=arm-linux-gnueabi-gfortran
+$ export CC=/path/to/your/cross-compiler/its-prefix-gcc
+$ export CXX=/path/to/your/cross-compiler/its-prefix-g++
+$ export FC=/path/to/your/cross-compiler/its-prefix-gfortran
 $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/libs
-$ export CFLAGS="-static -pie -fPIC"
-$ export CXXFLAGS="-static -pie -fPIC"
-$ export FFLAGS="-static -pie -fPIC"
+$ export CFLAGS="-pie -fPIC"
+$ export CXXFLAGS="-pie -fPIC"
+$ export FFLAGS="-pie -fPIC"
 $ export LDFLAGS="-static -pie -fPIC"
-$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_arm -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static -fPIE -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
-```
-in cmake_install.cmake, remove blocks including RPATH
-```bash
-$ make install
-```
-
-* aarch64
-```bash
-$ export CC=aarch64-linux-gnu-gcc
-$ export CXX=aarch64-linux-gnu-g++
-$ export FC=aarch64-linux-gnu-gfortran
-$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/libs
-$ export CFLAGS="-static -pie -fPIC"
-$ export CXXFLAGS="-static -pie -fPIC"
-$ export FFLAGS="-static -pie -fPIC"
-$ export LDFLAGS="-static -pie -fPIC"
-$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_aarch64 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static -fPIE -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
-```
-in cmake_install.cmake, remove blocks including RPATH
-```bash
-$ make install
-```
-
-* x86
-```bash
-$ export CC=i686-linux-gnu-gcc
-$ export CXX=i686-linux-gnu-g++
-$ export FC=i686-linux-gnu-gfortran
-$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/libs
-$ export CFLAGS="-static -pie -fPIC"
-$ export CXXFLAGS="-static -pie -fPIC"
-$ export FFLAGS="-static -pie -fPIC"
-$ export LDFLAGS="-static -pie -fPIC"
-$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_x86 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static -fPIE -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
-```
-in cmake_install.cmake, remove blocks including RPATH
-```bash
-$ make install
-```
-
-* x86_64
-```bash
-$ export CC=x86_64-linux-gnu-gcc
-$ export CXX=x86_64-linux-gnu-g++
-$ export FC=x86_64-linux-gnu-gfortran
-$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/libs
-$ export CFLAGS="-static -pie -fPIC"
-$ export CXXFLAGS="-static -pie -fPIC"
-$ export FFLAGS="-static -pie -fPIC"
-$ export LDFLAGS="-static -pie -fPIC"
-$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/mopac2023_linux_x86_64 -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static -fPIE -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static -fPIE -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
 ```
 in cmake_install.cmake, remove blocks including RPATH
 ```bash
