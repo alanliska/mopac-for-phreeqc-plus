@@ -6,7 +6,7 @@
 
 * readmo.f - added the stamp defining the release
 
-## Compilation
+## Compilation - serial version
 
 mkdir build
 cd build
@@ -23,6 +23,27 @@ $ export LDFLAGS="-static -pie -fPIC"
 $ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=OFF -DMOPAC_LINK="-static -fPIE -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
 ```
 in cmake_install.cmake, remove blocks including RPATH
+```bash
+$ make install
+```
+
+## Compilation - parallel version
+
+mkdir build
+cd build
+
+```bash
+$ export CC=/path/to/your/cross-compiler/its-prefix-gcc
+$ export CXX=/path/to/your/cross-compiler/its-prefix-g++
+$ export FC=/path/to/your/cross-compiler/its-prefix-gfortran
+$ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/libs
+$ export CFLAGS="-pie -fPIC"
+$ export CXXFLAGS="-pie -fPIC"
+$ export FFLAGS="-pie -fPIC"
+$ export LDFLAGS="-static -pie -fPIC"
+$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install -DSTATIC_BUILD=ON -DAUTO_BLAS=OFF -DTHREADS_KEYWORD=ON -DMOPAC_LINK="-static -fPIE -pie /path/to/liblapack.a /path/to/libblas.a" -DGPU=OFF -DTESTS=OFF
+```
+in cmake_install.cmake, remove blocks including RPATH; in link.txt remove occurences of -Wl,-rpath,::::::::::::::
 ```bash
 $ make install
 ```
