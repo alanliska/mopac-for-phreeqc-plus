@@ -1,18 +1,17 @@
 ! Molecular Orbital PACkage (MOPAC)
-! Copyright (C) 2021, Virginia Polytechnic Institute and State University
+! Copyright 2021 Virginia Polytechnic Institute and State University
 !
-! MOPAC is free software: you can redistribute it and/or modify it under
-! the terms of the GNU Lesser General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! Licensed under the Apache License, Version 2.0 (the "License");
+! you may not use this file except in compliance with the License.
+! You may obtain a copy of the License at
 !
-! MOPAC is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU Lesser General Public License for more details.
+!    http://www.apache.org/licenses/LICENSE-2.0
 !
-! You should have received a copy of the GNU Lesser General Public License
-! along with this program.  If not, see <https://www.gnu.org/licenses/>.
+! Unless required by applicable law or agreed to in writing, software
+! distributed under the License is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the License for the specific language governing permissions and
+! limitations under the License.
 
       subroutine deriv(geo, gradnt)
 !-----------------------------------------------
@@ -76,7 +75,7 @@
         saddle = index(keywrd, " SADDLE") /= 0
         debug = index(keywrd,' DERIV') /= 0
         field = index(keywrd,' FIELD') /= 0
-        precis = index(keywrd,' PREC') /= 0
+        precis = index(keywrd,' PRECISE') /= 0
         DH_correction = (index(keywrd,' PM6-D') + index(keywrd,' PM6-H') /= 0 .or. &
           method_PM7 .or. method_pm6_org .or. method_pm8 )
         intn = index(keywrd,'  XYZ') == 0
@@ -104,7 +103,7 @@
         scf1 = index(keywrd,' 1SCF') /= 0
         aic = index(keywrd,'AIDER') /= 0
         if (aic .and. aifrst) then
-          open(unit=ir, file=job_fn, status='OLD', blank='ZERO',position='asis')
+          open(unit=ir, file=job_fn, status='OLD', blank='ZERO')
           rewind ir
 !
 !  ISOK IS SET FALSE: ONLY ONE SYSTEM ALLOWED
@@ -238,6 +237,7 @@
           call geout(iw)
         end if
       end if
+      call C_triple_bond_C_deriv(dxyz)
       if (DH_correction) call post_scf_corrections(sum, .true.)
 !
 !   THE CARTESIAN DERIVATIVES ARE IN DXYZ

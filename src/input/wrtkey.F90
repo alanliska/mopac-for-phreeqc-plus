@@ -1,18 +1,17 @@
 ! Molecular Orbital PACkage (MOPAC)
-! Copyright (C) 2021, Virginia Polytechnic Institute and State University
+! Copyright 2021 Virginia Polytechnic Institute and State University
 !
-! MOPAC is free software: you can redistribute it and/or modify it under
-! the terms of the GNU Lesser General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! Licensed under the Apache License, Version 2.0 (the "License");
+! you may not use this file except in compliance with the License.
+! You may obtain a copy of the License at
 !
-! MOPAC is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU Lesser General Public License for more details.
+!    http://www.apache.org/licenses/LICENSE-2.0
 !
-! You should have received a copy of the GNU Lesser General Public License
-! along with this program.  If not, see <https://www.gnu.org/licenses/>.
+! Unless required by applicable law or agreed to in writing, software
+! distributed under the License is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the License for the specific language governing permissions and
+! limitations under the License.
 
 subroutine wrtkey
   use molkst_C, only : moperr, allkey, keywrd
@@ -211,15 +210,6 @@ subroutine wrtchk (allkey)
     end if
     if (index(keywrd," 1SCF") /= 0 .and. index(keywrd," RAPID") /= 0) then
       call mopend("RAPID cannot be used with 1SCF")
-      return
-    end if
-  end if
-!
-!   MULLIK does not work with UHF
-!
-  if (Index (keywrd, " MULLIK") /= 0 ) then
-    if (uhf) then
-      call mopend ("MULLIKEN POPULATION NOT AVAILABLE WITH UHF")
       return
     end if
   end if
@@ -1854,6 +1844,10 @@ subroutine wrtwor (allkey)
   double precision :: time, sum_1, sum_2
   logical, external :: myword
   double precision, external :: reada
+#ifdef _OPENMP
+  integer :: max_threads
+  integer, external :: omp_get_num_procs
+#endif
   intrinsic Index, Min, Nint, Max
   if (myword(allkey, " EIGINV"))     write (iw,'(" *  EIGINV     - USE HESSIAN EIGENVALUE REVERSION IN EF")')
   if (myword(allkey, " NONR"))       write (iw,'(" *  NONR       - DO NOT USE NEWTON-RAPHSON STEP IN EF")')
@@ -1865,7 +1859,7 @@ subroutine wrtwor (allkey)
   if (myword(allkey, " OLDGEO"))     write (iw,'(" *  OLDGEO     - PREVIOUS GEOMETRY TO BE USED")')
   if (myword(allkey, " OLDFPC"))     write (iw,'(" *  OLDFPC     - OLD FUNDAMENTAL PHYSICAL CONSTANTS TO BE USED")')
   if (myword(allkey, " OLD_HESS"))   write (iw,'(" *  OLD_HESS   - USE THE OLD HESSIAN MATRIX")')
-  if (myword(allkey, " PREC"))       write (iw,'(" *  PRECISE    - TIGHTER CRITERIA TO BE USED")')
+  if (myword(allkey, " PRECISE"))    write (iw,'(" *  PRECISE    - TIGHTER CRITERIA TO BE USED")')
   if (myword(allkey, " NOANCI"))     write (iw,'(" *  NOANCI     - DO NOT USE ANALYTICAL C.I. DERIVATIVES")')
   if (myword(allkey, " DFP"))        write (iw,'(" *  DFP        - USE DAVIDON FLETCHER POWELL OPTIMIZER")')
   if (myword(allkey, " XYZ"))        write (iw,'(" *  XYZ        - CARTESIAN COORDINATE SYSTEM TO BE USED")')
@@ -1903,10 +1897,8 @@ subroutine wrtwor (allkey)
 #ifdef _OPENMP
     if (i == 1) then
       write (iw,'(" *  THREADS=1  - MULTI-THREADING NOT USED")')
-    else if (i < 10) then
-      write (iw,'(" *  THREADS    - USE A MAXIMUM OF", i2, " THREADS")') i
     else
-      write (iw,'(" *  THREADS    - USE A MAXIMUM OF", i3, " THREADS")') i
+      write (iw,'(" *  THREADS    - USE UP TO ", i0, " THREADS")') i
     end if
 #else
     write (iw,'(" *  THREADS    - INACTIVE (THREAD CONTROLS DISABLED)")')

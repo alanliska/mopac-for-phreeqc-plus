@@ -1,18 +1,17 @@
 # Molecular Orbital PACkage (MOPAC)
-# Copyright (C) 2021, Virginia Polytechnic Institute and State University
+# Copyright 2021 Virginia Polytechnic Institute and State University
 #
-# MOPAC is free software: you can redistribute it and/or modify it under
-# the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# MOPAC is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
-# You should have received a copy of the GNU Lesser General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 # Using Cmake version 3.14 for NumPy support
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
@@ -54,7 +53,9 @@ project(openmopac VERSION ${CMAKE_MATCH_1} LANGUAGES Fortran)
 
 # Enable C language support for MKL?  (C is only needed for auto-detection of MKL by find_package)
 option(ENABLE_MKL "Turn on C language support for MKL" ON)
-if(ENABLE_MKL)
+option(USE_C_MALLOC "Turn on C malloc/free for API memory management" OFF)
+option(FORCE_EXPORT_SYMBOLS "Turn on CMake system to export all symbols in MOPAC shared library" OFF)
+if(ENABLE_MKL OR USE_C_MALLOC OR FORCE_EXPORT_SYMBOLS)
   enable_language(C)
 endif()
 
@@ -101,6 +102,9 @@ if (STATIC_BUILD)
   set(BLA_STATIC ON)
 else()
   add_library(mopac-core SHARED)
+  if(FORCE_EXPORT_SYMBOLS)
+    set_target_properties(mopac-core PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS true)
+  endif()
 endif()
 set_target_properties(mopac-core PROPERTIES OUTPUT_NAME "mopac")
 add_executable(mopac)
@@ -134,8 +138,16 @@ if(BUILD_BZ)
   endif()
 endif()
 
+# Use malloc in API w/ Intel Fortran compiler because it can't deallocate Fortran-allocated memory passed through a C interface
+if(USE_C_MALLOC)
+  target_compile_definitions(mopac-core PRIVATE MOPAC_API_CC)
+  target_link_libraries(mopac-core PUBLIC ${CMAKE_C_STANDARD_LIBRARIES})
+elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
+  target_compile_definitions(mopac-core PRIVATE MOPAC_API_IFORT)
+endif()
+
 # MOPAC shared library ABI compatibility version
-set_target_properties(mopac-core PROPERTIES SOVERSION 1)
+set_target_properties(mopac-core PROPERTIES SOVERSION 2)
 
 # Adjust legacy PGI compiler behavior: disable C-style backslash characters & warn about CRLF handling
 if(CMAKE_Fortran_COMPILER_ID MATCHES "PGI|Flang")
@@ -151,6 +163,7 @@ if(APPLE)
   target_compile_definitions(mopac-core PRIVATE MOPAC_OS="MacOS")
 elseif(WIN32)
   target_compile_definitions(mopac-core PRIVATE MOPAC_OS="Windows")
+  target_compile_definitions(mopac-core PRIVATE WIN32)
 elseif(UNIX)
   target_compile_definitions(mopac-core PRIVATE MOPAC_OS="Linux")
 endif()
@@ -171,12 +184,13 @@ endif()
 
 # Pass version & commit information to MOPAC's Fortran source
 target_compile_definitions(mopac-core PRIVATE MOPAC_VERSION_FULL="${PROJECT_VERSION}")
-if(NOT GIT_HASH)
-  execute_process(COMMAND git rev-parse HEAD OUTPUT_VARIABLE GIT_HASH)
-endif()
+option(GIT_HASH "Show git hash in --version info (git repo only)" ON)
 if(GIT_HASH)
-  string(STRIP ${GIT_HASH} GIT_HASH)
-  target_compile_definitions(mopac-core PRIVATE MOPAC_GIT_HASH="${GIT_HASH}")
+  execute_process(COMMAND git rev-parse HEAD OUTPUT_VARIABLE GIT_HASH_VAL)
+  if(GIT_HASH_VAL)
+    string(STRIP ${GIT_HASH_VAL} GIT_HASH_VAL)
+    target_compile_definitions(mopac-core PRIVATE MOPAC_GIT_HASH="${GIT_HASH_VAL}")
+  endif()
 endif()
 
 # Try to use CMake's system of finding BLAS & LAPACK libraries
@@ -215,6 +229,20 @@ separate_arguments(MOPAC_LINK_PATH)
 target_link_libraries(mopac-core PUBLIC ${MOPAC_LINK})
 target_link_directories(mopac-core PUBLIC ${MOPAC_LINK_PATH})
 
+# MDI functionality (in development)
+option(MDI "MDI build flag" OFF)
+if(MDI)
+  add_definitions(-DBUILD_MDI)
+  find_package(mdi)
+  if(mdi_FOUND)
+    message(STATUS "Found MDI: ${mdi_LIBRARY}")
+    target_link_libraries(mopac-core PUBLIC ${mdi_LIBRARY})
+  else()
+    message(STATUS "MDI not found, a local version will be downloaded & built")
+    include(MDI)
+  endif()
+endif()
+
 # Add list of source files from src directory
 add_subdirectory(src)
 
@@ -238,12 +266,6 @@ if(ENABLE_COVERAGE)
   configure_file("cmake/CTestCustom.cmake" "${CMAKE_BINARY_DIR}/CTestCustom.cmake")
 endif()
 
-# MDI functionality (in development)
-option(MDI "MDI build flag" OFF)
-if(MDI)
-  include(MDI)
-endif()
-
 # GPU functionality (not functional at the moment)
 option(GPU "GPU build flag" OFF)
 if(GPU)
@@ -257,11 +279,14 @@ if(TESTS)
   if(NOT Python3_FOUND)
     if(Python3_Interpreter_FOUND AND (NOT Python3_NumPy_FOUND))
       message(NOTICE "Python3 found without NumPy at path: ${Python3_EXECUTABLE}\n"
-              "(HINT: install NumPy for this Python3 instance with pip or give higher priority to an instance with NumPy installed)")
+              "(HINT: install NumPy for this Python3 instance with pip or conda, or give higher priority to an instance with NumPy installed by setting Python3_EXECUTABLE)")
     endif()
     message(FATAL_ERROR "Python3 and Numpy are required for MOPAC testing (testing can be disabled with -DTESTS=OFF)")
   endif()
   enable_testing()
+  add_executable(mopac-api-test)
+  target_link_libraries(mopac-api-test mopac-core)
+  add_subdirectory(include)
   add_subdirectory(tests)
 endif()
 
@@ -312,8 +337,12 @@ else()
 endif()
 install(FILES "${CMAKE_SOURCE_DIR}/.github/mopac.ico" DESTINATION "." COMPONENT qtifw EXCLUDE_FROM_ALL)
 install(FILES "${CMAKE_SOURCE_DIR}/CITATION.cff"
-              "${CMAKE_SOURCE_DIR}/COPYING"
-              "${CMAKE_SOURCE_DIR}/COPYING.lesser" DESTINATION "." COMPONENT redist EXCLUDE_FROM_ALL)
+              "${CMAKE_SOURCE_DIR}/LICENSE" DESTINATION "." COMPONENT redist EXCLUDE_FROM_ALL)
+install(FILES "${CMAKE_SOURCE_DIR}/include/mopac.h" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT main)
+install(FILES "${CMAKE_SOURCE_DIR}/include/mopac_wrapper_internal.F90" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT redist EXCLUDE_FROM_ALL)
+install(FILES "${CMAKE_SOURCE_DIR}/include/mopac_wrapper.F90" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT redist EXCLUDE_FROM_ALL)
+install(FILES "${CMAKE_SOURCE_DIR}/include/LICENSE" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT redist EXCLUDE_FROM_ALL)
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/examples" DESTINATION "examples" COMPONENT redist EXCLUDE_FROM_ALL)
 
 # Install the executables and library
 install(TARGETS mopac RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT main)
@@ -332,8 +361,7 @@ endif()
 include(CPack)
 include(CPackIFW)
 cpack_ifw_configure_component(main DISPLAY_NAME "main program" SORTING_PRIORITY 2 FORCED_INSTALLATION
-  LICENSES "primary license (LGPL3)" "${CMAKE_SOURCE_DIR}/COPYING.lesser"
-  "secondary license terms (GPL3)" "${CMAKE_SOURCE_DIR}/COPYING"
+  LICENSES "license (Apache-2.0)" "${CMAKE_SOURCE_DIR}/LICENSE"
   SCRIPT "${CMAKE_SOURCE_DIR}/.github/qtifw_component.qs"
   USER_INTERFACES "${CMAKE_SOURCE_DIR}/.github/pathcheckboxform.ui" "${CMAKE_SOURCE_DIR}/.github/filecheckboxform.ui" "${CMAKE_SOURCE_DIR}/.github/iconcheckboxform.ui")
 cpack_ifw_configure_component(qtifw VIRTUAL FORCED_INSTALLATION)

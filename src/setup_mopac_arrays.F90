@@ -1,18 +1,17 @@
 ! Molecular Orbital PACkage (MOPAC)
-! Copyright (C) 2021, Virginia Polytechnic Institute and State University
+! Copyright 2021 Virginia Polytechnic Institute and State University
 !
-! MOPAC is free software: you can redistribute it and/or modify it under
-! the terms of the GNU Lesser General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! Licensed under the Apache License, Version 2.0 (the "License");
+! you may not use this file except in compliance with the License.
+! You may obtain a copy of the License at
 !
-! MOPAC is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU Lesser General Public License for more details.
+!    http://www.apache.org/licenses/LICENSE-2.0
 !
-! You should have received a copy of the GNU Lesser General Public License
-! along with this program.  If not, see <https://www.gnu.org/licenses/>.
+! Unless required by applicable law or agreed to in writing, software
+! distributed under the License is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the License for the specific language governing permissions and
+! limitations under the License.
 
   subroutine setup_mopac_arrays(n, mode)
 !
@@ -54,9 +53,9 @@
   use drc_C, only: vref, vref0, allxyz, allvel, xyz3, vel3, allgeo, geo3, parref
 !
   use cosmo_C, only : ipiden, idenat, gden, qdenet, &
-  phinet, qscnet, qscat, bmat, abcmat, srad, iatsp, &
-  nn, cosurf, xsp, nset, bh, qden, nsetf, isude, sude, &
-  arat, amat, cmat
+  phinet, qscnet, qscat, bmat, srad, iatsp, &
+  nn, cosurf, nset, qden, nsetf, isude, sude, &
+  arat, amat
 !
   use esp_C, only : cen, ex, iam, cc, &
       & cespm, espi, potpt, es, rnai, rnai2, pf0, pf1, pf2, &
@@ -195,7 +194,6 @@
     if (allocated(f)) call fock2(f, f, f, w, w, w, numat, nfirst, nlast, mode)
     if (allocated(a2))         deallocate(a2, stat = i)
     if (allocated(ab))         deallocate(ab, stat = i)
-    if (allocated(abcmat))     deallocate (abcmat, stat = i)
     if (allocated(aicorr))     deallocate (aicorr, stat = i)
     if (allocated(aidref))     deallocate(aidref, stat = i)
     if (allocated(al))         deallocate(al, stat = i)
@@ -207,7 +205,6 @@
     if (allocated(atmass))     deallocate (atmass, stat = i)
     if (allocated(b))          deallocate(b, stat = i)
     if (allocated(b_esp))      deallocate(b_esp, stat = i)
-    if (allocated(bh))         deallocate (bh, stat = i)
     if (allocated(bmat))       deallocate (bmat, stat = i)
     if (allocated(c))          deallocate (c, stat = i)
     if (allocated(cb))         deallocate (cb, stat = i)
@@ -219,7 +216,6 @@
     if (allocated(cespm))      deallocate(cespm, stat = i)
     if (allocated(cespm2))     deallocate(cespm2, stat = i)
     if (allocated(cespml))     deallocate(cespml, stat = i)
-    if (allocated(cmat))       deallocate (cmat, stat = i)
     if (allocated(cnorml))     deallocate(cnorml, stat = i)
     if (allocated(co))         deallocate(co, stat = i)
     if (allocated(coord))      deallocate (coord, stat = i)
@@ -364,7 +360,6 @@
     if (allocated(work2))      deallocate(work2, stat = i)
     if (allocated(xparam))     deallocate (xparam, stat = i)
     if (allocated(xparef))     deallocate (xparef, stat = i)
-    if (allocated(xsp))        deallocate (xsp, stat = i)
     if (allocated(xyz3))       deallocate (xyz3, stat = i)
     if (allocated(occa))       deallocate(occa, stat = i)
     if (allocated(microa))     deallocate(microa, stat = i)

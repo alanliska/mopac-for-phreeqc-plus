@@ -1,18 +1,17 @@
 ! Molecular Orbital PACkage (MOPAC)
-! Copyright (C) 2021, Virginia Polytechnic Institute and State University
+! Copyright 2021 Virginia Polytechnic Institute and State University
 !
-! MOPAC is free software: you can redistribute it and/or modify it under
-! the terms of the GNU Lesser General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! Licensed under the Apache License, Version 2.0 (the "License");
+! you may not use this file except in compliance with the License.
+! You may obtain a copy of the License at
 !
-! MOPAC is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU Lesser General Public License for more details.
+!    http://www.apache.org/licenses/LICENSE-2.0
 !
-! You should have received a copy of the GNU Lesser General Public License
-! along with this program.  If not, see <https://www.gnu.org/licenses/>.
+! Unless required by applicable law or agreed to in writing, software
+! distributed under the License is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the License for the specific language governing permissions and
+! limitations under the License.
 
 subroutine moldat(mode)
 !-----------------------------------------------
@@ -250,7 +249,7 @@ subroutine moldat(mode)
                     if (line(i:i) == "/" .or. line(i:i) == backslash) exit
                   end do
                 end if
-              open(unit=iarc, file=trim(line), status='UNKNOWN', position='asis')
+              open(unit=iarc, file=trim(line))
               rewind iarc
               call pdbout(iarc)
             end if
@@ -1161,7 +1160,7 @@ subroutine setcup
 end subroutine setcup
 subroutine write_cell(iprt)
   use molkst_C, only: mol_weight, escf, numat, keywrd, gnorm, &
-   line, mers, density, gui
+   line, mers, density
   use funcon_C, only: fpc_10
   use common_arrays_C, only: nat, tvec
   use ef_C, only : nstep
@@ -1172,7 +1171,7 @@ subroutine write_cell(iprt)
   integer, dimension (100) :: nel
   double precision, external :: reada, volume
   save :: old_nstep
-  if (iprt < 0 .or. gui) return
+  if (iprt < 0) return
   if (iprt == 0) then
     if(old_nstep == nstep) return
     old_nstep = nstep
@@ -1354,6 +1353,7 @@ subroutine calculate_voigt
   double precision, dimension (3) :: dsum, dsum1
   double precision, external :: volume
 !  Accumulate stress tensor from gradients with x, y, & z components
+  voigt = 0.d0
   m = 0
   i1 = 0
   do i = 1, nvar
@@ -1462,24 +1462,32 @@ subroutine write_pressure(iprt)
 !  Accumulate stress tensor
     if (nvar == 3*natoms) then
       call calculate_voigt()
-  !  Print stress tensor
-      write(line,'(a)') ""
-      if (iprt == 0) then
-        call to_screen(trim(line))
-      else
-        write(iprt,*)trim(line)
-      end if
-      write(line,'(a)') "          Stress tensor in GPa using Voigt notation (xx, yy, zz, yz, xz, xy):"
-      if (iprt == 0) then
-        call to_screen(trim(line))
-      else
-        write(iprt,*)trim(line)
-      end if
-      write(line,'(10x,6f10.3)') (voigt(i),i=1,6)
-      if (iprt == 0) then
-        call to_screen(trim(line))
-      else
-        write(iprt,*)trim(line)
+      xi = 0.d0
+      do i = 1, 6
+        xi = xi + Abs(voigt(i))
+      end do
+      ! nvar doesn't guarantee gradients are calculated,
+      ! suppress exactly zero stress, assuming that gradients were not evaluated in that case
+      if (xi /= 0.d0) then
+    !  Print stress tensor
+        write(line,'(a)') ""
+        if (iprt == 0) then
+          call to_screen(trim(line))
+        else
+          write(iprt,*)trim(line)
+        end if
+        write(line,'(a)') "          Stress tensor in GPa using Voigt notation (xx, yy, zz, yz, xz, xy):"
+        if (iprt == 0) then
+          call to_screen(trim(line))
+        else
+          write(iprt,*)trim(line)
+        end if
+        write(line,'(10x,6f10.3)') (voigt(i),i=1,6)
+        if (iprt == 0) then
+          call to_screen(trim(line))
+        else
+          write(iprt,*)trim(line)
+        end if
       end if
     end if
 end subroutine write_pressure

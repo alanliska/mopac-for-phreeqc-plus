@@ -1,23 +1,22 @@
 ! Molecular Orbital PACkage (MOPAC)
-! Copyright (C) 2021, Virginia Polytechnic Institute and State University
+! Copyright 2021 Virginia Polytechnic Institute and State University
 !
-! MOPAC is free software: you can redistribute it and/or modify it under
-! the terms of the GNU Lesser General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! Licensed under the Apache License, Version 2.0 (the "License");
+! you may not use this file except in compliance with the License.
+! You may obtain a copy of the License at
 !
-! MOPAC is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU Lesser General Public License for more details.
+!    http://www.apache.org/licenses/LICENSE-2.0
 !
-! You should have received a copy of the GNU Lesser General Public License
-! along with this program.  If not, see <https://www.gnu.org/licenses/>.
+! Unless required by applicable law or agreed to in writing, software
+! distributed under the License is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the License for the specific language governing permissions and
+! limitations under the License.
 
 subroutine ef (xparam, funct)
     use Common_arrays_C, only: geo, loc, hesinv, grad, atmass, nc
     use molkst_C, only: nvar, numcal, last, gnorm, iflepo, line, &
-       & tleft, numat, ndep, time0, tdump, natoms, id, keywrd, moperr
+       & tleft, numat, ndep, time0, tdump, natoms, id, keywrd, moperr, use_disk
     use chanel_C, only: iw0, iw, ilog, log, input_fn
     use ef_C, only: nstep, negreq, iprnt, ef_mode, ddx, xlamd, &
        & xlamd0, skal, rmin, rmax
@@ -307,13 +306,15 @@ subroutine ef (xparam, funct)
             i = len_trim(line) - 5
           call to_screen(line(:i))
         end if
-          endfile (iw)
-          backspace (iw)
+          if (use_disk) then
+            endfile (iw)
+            backspace (iw)
+          end if
           if (log) write (ilog, "(a)")line(:len_trim(line))
           call to_screen(line)
         end if
         if (nflush /= 0) then
-          if (Mod(nstep+1, nflush) == 0) then
+          if (Mod(nstep+1, nflush) == 0 .and. use_disk) then
               endfile (iw)
               backspace (iw)
             if (log) then
@@ -332,15 +333,17 @@ subroutine ef (xparam, funct)
         tprt, txt, Min (gnorm, 999999.999d0), funct
         write(iw,"(a)")line(:len_trim(line))
         call to_screen(line)
-        endfile (iw)
-        backspace (iw)
+        if (use_disk) then
+          endfile (iw)
+          backspace (iw)
+        end if
         if (log) then
           write (ilog, '(" RESTART FILE WRITTEN,      TIME LEFT:", f6.2, &
         & a1, "  GRAD.:", f10.3, " HEAT:", g14.7)', err=1000) &
         tprt, txt, Min (gnorm,999999.999d0), funct
         end if
         if (nflush /= 0) then
-          if (Mod(nstep+1, nflush) == 0) then
+          if (Mod(nstep+1, nflush) == 0 .and. use_disk) then
               endfile (iw)
               backspace (iw)
             if (log) then
@@ -793,8 +796,7 @@ subroutine efsav (tt0, hess, funct, grad, xparam, pmat, il, bmat, ipow, &
   if (is_PARAM) return
   inquire(unit=ires, opened=opend)
   if (opend) close(unit=ires, status='KEEP')
-  open(unit=ires, file=restart_fn, status='UNKNOWN', form=&
-  'UNFORMATTED', position='asis', iostat = io_stat)
+  open(unit=ires, file=restart_fn, form='UNFORMATTED', iostat = io_stat)
   if (io_stat /= 0) then
     write(iw,*)" Restart file either does not exist or is not available for reading"
     call mopend ("Restart file either does not exist or is not available for reading")
@@ -805,7 +807,7 @@ subroutine efsav (tt0, hess, funct, grad, xparam, pmat, il, bmat, ipow, &
     funct1 = dsqrt(ddot(nvar, grad, 1, grad, 1))
     if (ipow(9) == 1 .and. index(keywrd,'STEP1') == 0) then
       write (iw, '(2/10X,''CURRENT VALUE OF GRADIENT NORM ='',F12.6)') funct1
-      if (prt_gradients .and. index(keywrd," GRADI") /= 0 .and. mozyme) then
+      if (prt_gradients .and. index(keywrd," GRAD") /= 0 .and. mozyme) then
         write (iw, '(3/7X,''CURRENT  POINT  AND  DERIVATIVES'',/)')
         call prtgra ()
       end if
@@ -1017,7 +1019,7 @@ subroutine efstr (xparam, funct, ihess, ntime, iloop, igthes, mxstep, ireclc, &
     end if
     tol2 = 1.d+0
     if (id /= 0) tol2 = id*2.d0 - 1.d0
-    if (Index (keywrd, " PREC") /= 0) tol2 = tol2*5.d-2
+    if (Index (keywrd, " PRECISE") /= 0) tol2 = tol2*5.d-2
     i = Index (keywrd, " GNORM=")
     if (i /= 0) then
       tol2 = reada (keywrd, i)
@@ -1108,7 +1110,7 @@ subroutine formd (eigval, fx, nvar, dmax, ddmin, ts, lorjk, rrscal, &
    !     DMAX
     use chanel_C, only: iw
     use ef_C, only: skal, ef_mode, iprnt, ddx, xlamd, xlamd0
-    use molkst_C, only: numcal, numat
+    use molkst_C, only: numcal, numat, use_disk
     implicit none
     logical, intent (in) :: donr, rrscal, ts
     logical, intent (inout) :: lorjk
@@ -1277,8 +1279,10 @@ subroutine formd (eigval, fx, nvar, dmax, ddmin, ts, lorjk, rrscal, &
         bu = eone - ssmin
         frodo2 = .true.
       end if
-      endfile (iw)
-      backspace (iw)
+      if (use_disk) then
+        endfile (iw)
+        backspace (iw)
+      end if
       if (frodo1 .and. frodo2) then
         write (iw,*) "NUMERICAL PROBLEMS IN BRACKETING LAMBDA", eone, bl, &
              & bu, fl, fu

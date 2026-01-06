@@ -1,18 +1,17 @@
 ! Molecular Orbital PACkage (MOPAC)
-! Copyright (C) 2021, Virginia Polytechnic Institute and State University
+! Copyright 2021 Virginia Polytechnic Institute and State University
 !
-! MOPAC is free software: you can redistribute it and/or modify it under
-! the terms of the GNU Lesser General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! Licensed under the Apache License, Version 2.0 (the "License");
+! you may not use this file except in compliance with the License.
+! You may obtain a copy of the License at
 !
-! MOPAC is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU Lesser General Public License for more details.
+!    http://www.apache.org/licenses/LICENSE-2.0
 !
-! You should have received a copy of the GNU Lesser General Public License
-! along with this program.  If not, see <https://www.gnu.org/licenses/>.
+! Unless required by applicable law or agreed to in writing, software
+! distributed under the License is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the License for the specific language governing permissions and
+! limitations under the License.
 
       subroutine iter(ee, fulscf, rand)
       use common_arrays_C, only : eigs, p, pa, pb, cb, h, &
@@ -28,7 +27,7 @@
     &    nclose, nopen, fract, numcal, mpack, iflepo, iscf, &
     &    enuclr, keywrd, gnorm, moperr, last, nscf, emin, &
          limscf, atheat, is_PARAM, id, line, lxfac, nalpha_open, &
-         nbeta_open, npulay, method_indo
+         nbeta_open, npulay, method_indo, use_disk, tleft
       USE reimers_C, only: dd, ff, tot, cc0, aa, dtmp, nb2
       use cosmo_C, only : useps
 #ifdef GPU
@@ -48,11 +47,12 @@
       double precision :: plb, scfcrt, pl, bshift, pltest, trans, w1, w2, random, &
         shift, shiftb = 0.d0, shfmax, ten, tenold, plchek, scorr, shfto, &
         shftbo, titer0, eold, diff, enrgy, titer, escf, &
-        sellim, sum, summ, eold_alpha, eold_beta, theta(norbs), ofract, sum1, sum2
+        sellim, sum, summ, eold_alpha, eold_beta, theta(norbs), ofract, sum1, sum2, &
+        tstart, tnow
       logical :: debug, prtfok, prteig, prtden, prt1el, minprt, newdg, prtpl, &
         prtvec, camkin, ci, okpuly, oknewd, times, force, allcon, &
         halfe, gs, capps, incitr, timitr, frst, bfrst, ready, glow,  &
-        makea, makeb, getout, l_param, opendd
+        makea, makeb, getout, l_param, opendd, tlimit
       integer :: iopc_calcp
       character, dimension(3) :: abprt*5
       double precision, external :: capcor, helect, meci, reada, seconds
@@ -89,6 +89,8 @@
       sellim = 0.d0
       opendd = .false.
       glow = .FALSE.
+      tstart = seconds(1)
+      tlimit = index(keywrd,' CYCLES') + index(keywrd,' BIGCYCLES') == 0
       if (icalcn /= numcal) then
         call delete_iter_arrays
         l_param = .true.
@@ -150,7 +152,7 @@
         iscf = 1
         trans = 0.200D0
         if (index(keywrd,' OLDENS') /= 0) then
-           call den_in_out(0)
+           if (use_disk) call den_in_out(0)
            if (moperr) return
            if (uhf) then
             pold(1:mpack) = pa(1:mpack)
@@ -639,6 +641,15 @@
         call mopend ('UNABLE TO ACHIEVE SELF-CONSISTENCE')
         return
       end if
+      ! enforce time limit
+      tnow = seconds(2)
+      if (tlimit .and. tnow - tstart >= tleft) then
+        iflepo = 9
+        iscf = 2
+        call writmo
+        call mopend ('UNABLE TO ACHIEVE SELF-CONSISTENCE WITHIN TIME LIMIT')
+        return
+      end if
       ee = helect(norbs,pa,h,f)
       if (uhf) then
         ee = ee + helect(norbs,pb,h,fb)
@@ -767,8 +778,10 @@
             niter, pl, plb, escf, diff
           write(iw,'(a)')trim(line)
           call to_screen(line)
-          endfile (iw)
-          backspace (iw)
+          if (use_disk) then
+            endfile (iw)
+            backspace (iw)
+          end if
         end if
       end if
       if (incitr) eold = escf
@@ -1157,8 +1170,7 @@
         if (formatted)then
           open(unit=iden, file=density_fn)
         else
-          open(unit=iden, file=density_fn, status='UNKNOWN', &
-          form='UNFORMATTED', position='asis')
+          open(unit=iden, file=density_fn, form='UNFORMATTED')
         end if
         rewind iden
         if (mode == 0) then

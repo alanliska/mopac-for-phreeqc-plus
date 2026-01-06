@@ -1,18 +1,17 @@
 ! Molecular Orbital PACkage (MOPAC)
-! Copyright (C) 2021, Virginia Polytechnic Institute and State University
+! Copyright 2021 Virginia Polytechnic Institute and State University
 !
-! MOPAC is free software: you can redistribute it and/or modify it under
-! the terms of the GNU Lesser General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
-! (at your option) any later version.
+! Licensed under the Apache License, Version 2.0 (the "License");
+! you may not use this file except in compliance with the License.
+! You may obtain a copy of the License at
 !
-! MOPAC is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU Lesser General Public License for more details.
+!    http://www.apache.org/licenses/LICENSE-2.0
 !
-! You should have received a copy of the GNU Lesser General Public License
-! along with this program.  If not, see <https://www.gnu.org/licenses/>.
+! Unless required by applicable law or agreed to in writing, software
+! distributed under the License is distributed on an "AS IS" BASIS,
+! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+! See the License for the specific language governing permissions and
+! limitations under the License.
 
 module molkst_C
 !
@@ -107,6 +106,7 @@ module molkst_C
                  !  Each stage is limited to the same electronic structure.  Most calculations
                  !  will only have one stage, e.g. geometry optimization or force constants.
                  !
+  &  job_no0, numcal0, step_num0, & ! Needed for repeated API calls to run_mopac
   &  mpack,    & !  Number of elements in a lower-half-triangle = (norbs*(norbs+1))/2
   &  n2elec,   & !  Number of two-electron integrals
   &  nscf,     & !  Number of SCF calculations done
@@ -257,9 +257,21 @@ module molkst_C
   & formula*100,   & !  Type          Empirical formula
                      !  Definition    Type and number count of each element in the system
                      !  Units         Text
-  & git_hash*40 = 'unknown', & !  Git commit hash string
-  & os*12 = 'unknown', &       !  Operating system name
-  & verson*20 = '22.*.*'       !  Version number for this copy of MOPAC
+#ifdef MOPAC_GIT_HASH
+  & git_hash*40 = MOPAC_GIT_HASH, & !  Git commit hash string
+#else
+  & git_hash*40 = 'unknown', & !  Generic git commit hash string when hash is unavailable
+#endif
+#ifdef MOPAC_OS
+  & os*12 = MOPAC_OS, &       !  Operating system name
+#else
+  & os*12 = 'unknown', &       !  Generic operating system name when OS is unknown
+#endif
+#ifdef MOPAC_VERSION_FULL
+  & verson*20 = MOPAC_VERSION_FULL !  Version number for this copy of MOPAC
+#else
+  & verson*20 = '23.*.*'       !  Generic version number when version is unknown
+#endif
                      !  Pattern      "xx.yy.zz(-pre)"
                      !  Description  major version, minor version, patch version, & pre-release tag
   character ::     &
@@ -283,11 +295,10 @@ module molkst_C
      limscf,            & !  Convergence criterion for SCF: if TRUE, then exit the SCF
                           !  if the energy changes a lot (useful in geometry optimization)
                           !  if FALSE, then converge the SCF to the default criterion
-     gui = .true.,      & !  By default, output information for a Graphical User Interface
      lxfac,             & !  TRUE if a diatomic is being used to define the values of XFAC and ALPB
      units,             & !  TRUE if units for input geometry are defined (Angstroms or A0), FALSE otherwise
      Angstroms,         & !  TRUE if units for input geometry must be in Angstroms, if FALSE then A0, see also units
-     Sparkle,           & !  TRUE if basis set is missing and sparkles are present (any of elements 58:70)
+     sparkle,           & !  TRUE if basis set is missing and sparkles are present (any of elements 58:70)
      keep_res,          & !  TRUE if the original residue names are to be used
      use_ref_geo,       & !  TRUE if keyword GEO_REF is used
      pdb_label,         & !  TRUE if label text is in PDB format
@@ -306,7 +317,8 @@ module molkst_C
      prt_velocity,      & ! TRUE if velocity vector in IRC/DRC to be printed
      dummy_present,     & !
      l_normal_html,     & ! TRUE if a normal HTML file is to be generated. After it's generated, set FALSE
-     is_PARAM=.false.     !  This will be set "TRUE" in a PARAM run
+     is_PARAM=.false.,  & !  This will be set "TRUE" in a PARAM run
+     use_disk=.true.      ! TRUE if disk access is allowed for functionality supported by MOPAC API
   equivalence  &
     (MM_corrections(1), N_3_present),    & ! TRUE if the system contains at least one N bonded to three ligands
                                            ! and at least two are not hydrogen atoms
